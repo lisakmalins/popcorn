@@ -223,9 +223,6 @@ double compute_K3(string seq1, string seq2, double beta) {
 
 }
 
-
-
-
 int main()
 {
 
@@ -237,7 +234,7 @@ int main()
     std::cin >> beta;
 
     string s1 = "EFDVI";
-    string s2 = "VPCSD";
+    string s2 = "VPCSDSKAIA";
 
     //K2 = compute_K2(s1,s2, beta);
     //cout << "K2 = " << K2 << endl;
