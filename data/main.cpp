@@ -153,6 +153,11 @@ double compute_K2(string &seq1, string &seq2, double beta) {
 return K2;
 }
 
+/* This function computer kernel K3.
+** parameters: two protein sequences (the first one shorter than or equals the 2nd one), beta
+** returns: kernel K3
+*/
+
 double compute_K3(string &seq1, string &seq2, double beta) {
 
     double K3 = 0.0;
@@ -164,29 +169,49 @@ double compute_K3(string &seq1, string &seq2, double beta) {
      sequence1 = substring_generator(seq1, seq1.length());
      sequence2 = substring_generator(seq2, seq2.length());
 
-     cout << sequence1.size() << endl;
-      cout << sequence2.size() << endl;
 
-    /*for(auto s1: sequence1){
-        cout << s1 << "    ";
-        cout << s1.length() << " ";
-    }*/
     for(auto s1 : sequence1){
         for(auto s2 : sequence2){
             if(s1.length() == s2.length())
             {
-                //cout << (s1)->size( << (s2)->size() << endl;
-                cout << "seq 1 = " << s1 << " seq 2 = " << s2 << endl;
                 K3 += compute_K2(s1, s2, beta);
 
             }
-
         }
     }
     return K3;
 
 }
 
+/* this function computes correlation kernel normalized from kernel K3
+** parameters: two protein sequences (1st sequence is smaller than or equals 2nd sequence), beta
+** returns: correlation K3
+*/
+ double correlation_kernel_K3(string &seq1, string &seq2, double beta){
+
+    double correlation_K3 = 0.0;
+    double K3_f_g = compute_K3(seq1, seq2, beta);
+    double K3_f_f = compute_K3(seq1, seq1, beta);
+    double K3_g_g = compute_K3(seq2, seq2, beta);
+
+    correlation_K3 = K3_f_g / sqrt(K3_f_f * K3_g_g);
+
+    return correlation_K3;
+
+ }
+
+ /* this function computes the final metric distance between 2 protein sequences
+** parameters: two protein sequences (1st sequence is smaller than or equals 2nd sequence), beta
+** returns: the metric distance between 2 sequences of protein
+*/
+ double protein_distance(string &seq1, string &seq2, double beta) {
+    double distance = 0.0;
+    double correlation_K3 = correlation_kernel_K3(seq1, seq2, beta);
+
+    distance = sqrt(2 * (1 - correlation_K3));
+
+    return distance;
+ }
 
 
 
@@ -194,30 +219,20 @@ double compute_K3(string &seq1, string &seq2, double beta) {
 int main()
 {
 
-    unordered_map <std::string, double> blosum62;
     double beta;
-    double K2;
-    double K3;
-    vector<string> subs;
+    double calculated_distance;
+
     std::cout << "Please type the value of beta: ";
     std::cin >> beta;
 
 
-    //string s1 = "EFDVILKAAGANKVAVIKAVRGATGLGLKEAKDLVESAPAALKEGVSKDDAEALKKALEEAGAEVEVK";
-    //string s2 = "VPCSDSKAIAQVGTISANSDETVGKLIAEAMDKVGKEGVITVEDGTGLQDELDVVEAGGVAVIKVGAATEVEMKEKKARVEDALHATRAAVEEG";
-    string s2 = "ABCDEFGHIJKL";
-    string s1 = "ABCDE";
+    string s1 = "EFDVILKAAGANKVAVIKAVRGATGLGLKEAKDLVESAPAALKEGVSKDDAEALKKALEEAGAEVEVK";
+    string s2 = "VPCSDSKAIAQVGTISANSDETVGKLIAEAMDKVGKEGVITVEDGTGLQDELDVVEAGGVAVIKVGAATEVEMKEKKARVEDALHATRAAVEEG";
+    //string s2 = "ARW";
+    //string s1 = "ARWYV";
 
-
-
-    //K2 = compute_K2(s1,s2, beta);
-    //cout << "K2 = " << K2 << endl;
-
-     K3 = compute_K3(s1,s2,beta);
-     cout << "K3 = " << K3 << endl;
-     //read_blosum_build_kernel(beta);
-
-    //subs = substring_generator(s2,s2.length());
+    calculated_distance = protein_distance(s1, s2, beta);
+    cout << calculated_distance << endl;
 
 
 
