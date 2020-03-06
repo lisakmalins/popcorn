@@ -9,6 +9,7 @@
 #include <set>
 #include <bits/stdc++.h>
 
+
 using namespace std;
 
 /*************************************************************************************
@@ -23,77 +24,50 @@ std::string amino_acids = ("ARNDCQEGHILKMFPSTWYV");
 unordered_map <string, double> K1;
 
 /*************************************************************************************
-                    PROCEDURES
+                    PROCEDURESs
 *************************************************************************************/
 
-/* find a subsequence of variable length */
 
-string subsequence_generator(string str, int subsequence, int length)
+
+/* this function will find all possible substring of different sizes
+** parameters: protein sequence str, size of the sequence n
+** return: returns all possible substrings stored in a vector for future use
+*/
+
+vector<string> substring_generator(const string &str, int n)
 {
-    string local_subsequence = "";
-    for (int j = 0; j < length; j++)
+    vector<string> possible_subsequences;
+    string temp;
 
-        /* check if jth bit in subsequence is 1 and if it is, include it in the subsequence*/
-        if (subsequence & (1 << j))
+    /* choose the starting letter of the subsequence; only create lengths of 10 max */
 
-            local_subsequence += str[j];
+    for (int L = 1; L <= 10; L++)
+    {
+        /* choose the position in the sequence where you want to stop */
+        for (int i = 0; i <= n-L; i++)
+        {
+            /* Find all characters between the starting letter and the end point*/
+            int j = i + L - 1;
+            for (int k = i; k <= j; k++)  {
 
-    return local_subsequence;
-}
+               // cout << str[k];
+               /* use a temporary string to store all characters of substrings bigger than size 1 */
+                temp.push_back(str[k]);
 
-/* take all-size generated subsequences and store them in a map */
+            }
 
-vector<string> store_subsequences(string str){
+            /* store all the characters of the substring in vector */
+             possible_subsequences.push_back(temp);
+            //cout << endl;
 
-    /* store subsequences in ascending order by length */
-    map<int, set<string> > possible_subsequences;
-
-    /* subsequences stored in sorted order for return */
-    vector<string> returned_sunbsequence;
-
-    /* maximum length of the subsequence; make it 10 now but change it later if needed */
-    int max_length = str.length();
-
-    /* limit sequence length to 10 */
-    int limit = pow(2, max_length);
-
-    /* start at i=2 because you want K2 to receive sequences of minimum 2 letters */
-    for (int i = 2; i <= limit - 1; i++) {
-
-        /* subsequence for binary pattern i */
-
-        string subsequence = subsequence_generator(str, i, max_length);
-
-        /* store subsequences in a map before putting them in order in a vector */
-        possible_subsequences[subsequence.length()].insert(subsequence);
-    }
-    int i = 0;
-    int j = 0;
-    for (auto it : possible_subsequences) {
-        // it.first is length of Subsequence
-        // it.second is set<string>
-        cout << "Subsequences of length = "
-             << it.first << " are:" << endl;
-
-        for (auto ii : it.second){
-             // ii is iterator of type set<string>
-             if(j > 0){
-
-                returned_sunbsequence.push_back(ii);
-                cout << returned_sunbsequence.at(i) << " ";
-                i++;
-             }
+            /* reset the temporary string to use in the next substring */
+            temp.erase();
 
         }
-        j++;
-
-
-        cout << endl;
     }
-    return returned_sunbsequence;
+    /* return the vector containing all substrings in ascending order */
+    return possible_subsequences;
 }
-
-
 /* the function below reads in the BLOSUM62-2 matrix and
 ** raises each of is elements to the power of beta to create
 ** kernel K^1; kernel K1 can be accessed on this way: K1[index] where index is matrix row+column index
@@ -158,7 +132,7 @@ unordered_map <string,double> read_blosum_build_kernel(double beta)
 ** returns: K2 of the 2 sequences
 */
 
-double compute_K2(string seq1, string seq2, double beta) {
+double compute_K2(string &seq1, string &seq2, double beta) {
 
     double K2 = 1.0;
     unordered_map <string, double> local_k1 = read_blosum_build_kernel(beta);
@@ -179,41 +153,31 @@ double compute_K2(string seq1, string seq2, double beta) {
 return K2;
 }
 
-double compute_K3(string seq1, string seq2, double beta) {
+double compute_K3(string &seq1, string &seq2, double beta) {
 
     double K3 = 0.0;
-    string index;
-
-    unordered_map <string, double> local_k1 = read_blosum_build_kernel(beta);
     vector<string> sequence1;
     vector<string> sequence2;
 
-    /* K3 for 1 letter sequence combination */
 
-    for(int i = 0; i < seq1.length(); i++)
-    {
-        for(int j = 0; j < seq2.length(); j++)
-        {
-            index.push_back(seq1[i]);
-            index.push_back(seq2[j]);
-            //cout << "index = " << index << "  && k1[index] = " << local_k1[index] << "  ";
-            K3 += local_k1[index];
-            index.erase();
-        }
+    /* K3 for 1+ letter sequence combination */
+     sequence1 = substring_generator(seq1, seq1.length());
+     sequence2 = substring_generator(seq2, seq2.length());
 
-    }
-   cout << endl;
-    /* K3 for 2+ letter sequence combination */
+     cout << sequence1.size() << endl;
+      cout << sequence2.size() << endl;
 
-    sequence1 = store_subsequences(seq1);
-    sequence2 = store_subsequences(seq2);
-    for(auto seq1 = sequence1.begin(); seq1 != sequence1.end(); ++seq1){
-        for(auto seq2 = sequence2.begin(); seq2 != sequence2.end(); ++seq2){
-
-            if((*seq1).length() == (*seq2).length())
+    /*for(auto s1: sequence1){
+        cout << s1 << "    ";
+        cout << s1.length() << " ";
+    }*/
+    for(auto s1 : sequence1){
+        for(auto s2 : sequence2){
+            if(s1.length() == s2.length())
             {
-               // cout << "seq 1 = " << *seq1 << " seq 2 = " << *seq2 << endl;
-                K3 += compute_K2(*seq1, *seq2, beta);
+                //cout << (s1)->size( << (s2)->size() << endl;
+                cout << "seq 1 = " << s1 << " seq 2 = " << s2 << endl;
+                K3 += compute_K2(s1, s2, beta);
 
             }
 
@@ -223,6 +187,10 @@ double compute_K3(string seq1, string seq2, double beta) {
 
 }
 
+
+
+
+
 int main()
 {
 
@@ -230,24 +198,26 @@ int main()
     double beta;
     double K2;
     double K3;
+    vector<string> subs;
     std::cout << "Please type the value of beta: ";
     std::cin >> beta;
 
-    string s1 = "EFDVI";
-    string s2 = "VPCSDSKAIA";
+
+    //string s1 = "EFDVILKAAGANKVAVIKAVRGATGLGLKEAKDLVESAPAALKEGVSKDDAEALKKALEEAGAEVEVK";
+    //string s2 = "VPCSDSKAIAQVGTISANSDETVGKLIAEAMDKVGKEGVITVEDGTGLQDELDVVEAGGVAVIKVGAATEVEMKEKKARVEDALHATRAAVEEG";
+    string s2 = "ABCDEFGHIJKL";
+    string s1 = "ABCDE";
+
+
 
     //K2 = compute_K2(s1,s2, beta);
     //cout << "K2 = " << K2 << endl;
 
-    K3 = compute_K3(s1,s2,beta);
-    cout << "K3 = " << K3 << endl;
+     K3 = compute_K3(s1,s2,beta);
+     cout << "K3 = " << K3 << endl;
      //read_blosum_build_kernel(beta);
 
-   // Pick starting point
-
-  // It computes all the subsequence of an string
-
-   // store_subsequences(s2);
+    //subs = substring_generator(s2,s2.length());
 
 
 
