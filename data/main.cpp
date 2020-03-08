@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <map>
 #include <set>
-#include <bits/stdc++.h>
 
 
 using namespace std;
@@ -32,14 +31,14 @@ std::string amino_acids = ("ARNDCQEGHILKMFPSTWYV");
 ** return: returns all possible substrings stored in a vector for future use
 */
 
-vector<string> substring_generator(const string &str, int n)
+vector<string> substring_generator(const string &str, int n, int substring_max_size)
 {
     vector<string> possible_subsequences;
     string temp;
 
-    /* choose the starting letter numbers of the subsequence; only create lengths of 10 max */
+    /* choose the starting letter number of the subsequence*/
 
-    for (int L = 1; L <= 10; L++)
+    for (int L = 1; L <= substring_max_size; L++)
     {
         /* choose the position in the sequence where you want to stop */
         for (int i = 0; i <= n-L; i++)
@@ -49,7 +48,6 @@ vector<string> substring_generator(const string &str, int n)
 
             for (int k = i; k <= j; k++)  {
 
-               //cout << str[k];
                /* use a temporary string to store all characters of substrings bigger than size 1 */
                 temp.push_back(str[k]);
 
@@ -57,7 +55,6 @@ vector<string> substring_generator(const string &str, int n)
 
             /* store all the characters of the substring in vector */
              possible_subsequences.push_back(temp);
-            //cout << endl;
 
             /* reset the temporary string to use in the next substring */
             temp.erase();
@@ -89,11 +86,9 @@ unordered_map <string, double> read_blosum_build_kernel(double beta)
 
     /* Read one line at a time from blosum 62 into the variable line */
     int i = 0, j = 0;
-    while(getline(file, line))
-    {
         for(int k = 0; k < 20; k++)
         {
-
+            getline(file, line);
             std::stringstream  lineStream(line);
 
             /*reset the column number for each new row */
@@ -113,17 +108,9 @@ unordered_map <string, double> read_blosum_build_kernel(double beta)
 
                     std::cout << "lineStream failed" << std::endl;
                 }
-                //cout << "value at " << index << " = " << value << " ";
 
                 /*raise each element in K to beta */
-                K1.insert(make_pair<string,double> ((string)index ,pow(value, beta)));
-
-               //cout << "K1[" << index << "] = " << K1[index] << " | value =  " << value << " ";
-
-                /*below is the test case to see if values get mapped correctly */
-               /* if(k < 2) {
-                    cout << K1[index] << " and the index is " << index << "  ";
-                } */
+                K1.insert(std::make_pair<string,double> ((string)index ,pow(value, beta)));
 
                 index.erase();
                 j++; /* increment column number */
@@ -133,25 +120,8 @@ unordered_map <string, double> read_blosum_build_kernel(double beta)
 
         }
 
-    }
 
-    /* the following writes all values of K1 in a file called K1 - for the purpose of validating if
-     * elements of blosum were raised correctly to the power of beta */
-
-    ofstream os;
-
-    os.open("K1.txt");
-    for(int k = 0; k < 20; k++){
-        for(int j = 0; j < 20; j++){
-             index.push_back(amino_acids[k]);
-             index.push_back(amino_acids[j]);
-             os << "K1[" << index << "] = " << K1.at(index) << endl;
-             index.erase();
-        }
-
-    }
-    os.close();
-return K1;
+    return K1;
 }
 
 /* this function computes kernel K2
@@ -159,10 +129,9 @@ return K1;
 ** returns: K2 of the 2 sequences
 */
 
-double compute_K2(string &seq1, string &seq2, double beta) {
+double compute_K2(string &seq1, string &seq2, unordered_map <string, double> &K1) {
 
     double K2 = 1.0;
-   unordered_map <string, double> local_K1 = read_blosum_build_kernel(beta);
     string index;
 
     for(int i = 0; i < seq1.length(); i++)
@@ -170,7 +139,7 @@ double compute_K2(string &seq1, string &seq2, double beta) {
 
             index.push_back(seq1[i]);
             index.push_back(seq2[i]);
-            K2 *= local_K1.at(index);
+            K2 *= K1.at(index);
             index.erase();
 
 
@@ -184,24 +153,36 @@ return K2;
 ** returns: kernel K3
 */
 
-double compute_K3(string &seq1, string &seq2, double beta) {
+double compute_K3(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size) {
 
     double K3 = 0.0;
+    double val = 0.0;
     vector<string> sequence1;
     vector<string> sequence2;
 
 
     /* K3 for 1+ letter sequence combination */
-     sequence1 = substring_generator(seq1, seq1.length());
-     sequence2 = substring_generator(seq2, seq2.length());
+
+    /* Choose if you want to generate substrings of max length of 10 or max length of the protein sequence */
+     if(substring_max_size == 10)
+     {
+         sequence1 = substring_generator(seq1, seq1.length(), substring_max_size);
+         sequence2 = substring_generator(seq2, seq2.length(), substring_max_size);
+     }
+     else
+     {
+         sequence1 = substring_generator(seq1, seq1.length(), seq1.length());
+         sequence2 = substring_generator(seq2, seq2.length(), seq2.length());
+     }
+
 
     /* compare each substring of the same length in sequence1 with one in sequence2 then compute K3 */
     for(auto s1 : sequence1){
         for(auto s2 : sequence2){
+            /* only add K2 of sequences of the same length */
             if(s1.length() == s2.length())
             {
-                cout << "add to K3: K2(" << s1 << "," << s2 << ")" << endl;
-                K3 += compute_K2(s1, s2, beta);
+                K3 += compute_K2(s1, s2, K1);
 
             }
         }
@@ -215,15 +196,13 @@ double compute_K3(string &seq1, string &seq2, double beta) {
 ** parameters: two protein sequences (1st sequence is smaller than or equals 2nd sequence), beta
 ** returns: correlation K3
 */
- double correlation_kernel_K3(string &seq1, string &seq2, double beta){
+ double correlation_kernel_K3(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size){
 
     double correlation_K3 = 0.0;
-    double K3_f_g = compute_K3(seq1, seq2, beta);
-    cout << "K3(f,g) = " << K3_f_g << endl;
-    double K3_f_f = compute_K3(seq1, seq1, beta);
-    cout << "K3(f,f) = " << K3_f_f << endl;
-    double K3_g_g = compute_K3(seq2, seq2, beta);
-    cout << "K3(g,g) = " << K3_g_g << endl;
+
+    double K3_f_g = compute_K3(seq1, seq2, K1, substring_max_size);
+    double K3_f_f = compute_K3(seq1, seq1, K1, substring_max_size);
+    double K3_g_g = compute_K3(seq2, seq2, K1, substring_max_size);
 
     correlation_K3 = K3_f_g / sqrt(K3_f_f * K3_g_g);
 
@@ -235,9 +214,9 @@ double compute_K3(string &seq1, string &seq2, double beta) {
 ** parameters: two protein sequences (1st sequence is smaller than or equals 2nd sequence), beta
 ** returns: the metric distance between 2 sequences of protein
 */
- double protein_distance(string &seq1, string &seq2, double beta) {
+ double protein_distance(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size) {
     double distance = 0.0;
-    double correlation_K3 = correlation_kernel_K3(seq1, seq2, beta);
+    double correlation_K3 = correlation_kernel_K3(seq1, seq2, K1, substring_max_size);
 
     distance = sqrt(2 * (1 - correlation_K3));
 
@@ -253,21 +232,37 @@ int main()
     double beta;
     double calculated_distance;
     string index;
+    int substring_max_size = 10;
 
     std::cout << "Please type the value of beta: ";
     std::cin >> beta;
 
     /* these are the first 2 sequences given in project 4 */
-   // string s1 = "EFDVILKAAGANKVAVIKAVRGATGLGLKEAKDLVESAPAALKEGVSKDDAEALKKALEEAGAEVEVK";
-    //string s2 = "VPCSDSKAIAQVGTISANSDETVGKLIAEAMDKVGKEGVITVEDGTGLQDELDVVEAGGVAVIKVGAATEVEMKEKKARVEDALHATRAAVEEG";
-
-    /* these are the test sequences */
-    string s1 = "AR";
-    string s2 = "ARN";
+    string s1 = "EFDVILKAAGANKVAVIKAVRGATGLGLKEAKDLVESAPAALKEGVSKDDAEALKKALEEAGAEVEVK";
+    string s2 = "VPCSDSKAIAQVGTISANSDETVGKLIAEAMDKVGKEGVITVEDGTGLQDELDVVEAGGVAVIKVGAATEVEMKEKKARVEDALHATRAAVEEG";
+    string s3 = "EFDVILKAAGANKVAVIKAVRGATGLALKEAKDLVESAPAALKEGVSKDDAEALKKALEEAGAEVEVK";
 
 
-    calculated_distance = protein_distance(s1, s2, beta);
-    cout << endl << "final distance = " << calculated_distance << endl;
+   unordered_map <string, double> local_K1 = read_blosum_build_kernel(beta);
+
+    /* Results from calculating the distance using all possible substrings */
+    calculated_distance= protein_distance(s1, s2, local_K1, 0);
+    cout << "final distance between sequence 1 and sequence 2 = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s3, s1, local_K1,0);
+    cout << "final distance between sequence 1 and sequence 3 = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s3, s2, local_K1,0);
+    cout << "final distance between sequence 2 and sequence 3 = " << calculated_distance << endl;
+
+    /*Results from calculating the distance using all substrings of max 10 letters */
+
+    calculated_distance= protein_distance(s1, s2, local_K1, substring_max_size);
+    cout << "final distance between sequence 1 and sequence 2 (stopping at substring of max 10 letters) = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s3, s1, local_K1,substring_max_size);
+    cout << "final distance between sequence 1 and sequence 3 (stopping at substring of max 10 letters) = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s3, s2, local_K1,substring_max_size);
+    cout << "final distance between sequence 2 and sequence 3 (stopping at substring of max 10 letters) = " << calculated_distance << endl;
+
+
 
 
     return 0;
