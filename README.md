@@ -19,16 +19,23 @@ make
 
 If you do not have GNU Make installed, you may also compile popcorn directly from the command line.
 ```
-g++ -std=c++11 popcorn.cpp -o run_popcorn
+g++ -std=c++11 popcorn_demo.cpp -o popcorn_demo
+g++ -std=c++11 test_max_substrings.cpp -o test_max_substrings
 ```
 
-The executable will be named run_popcorn.
+The executables can be run from the command-line.
 ```
-./run_popcorn
+./popcorn_demo
+./test_max_substrings
 ```
+
+`popcorn_demo` is a simple demonstration with three amino acid sequences. The program shows that the distance calculation is equivalent regardless of the order of the sequences. It also demonstrates that the distance is 0 when the sequences are the same.
+
+`test_max_substrings` demonstrates the effect of limiting the maximum substring length. The output is tab-delimited; each line lists the maximum substring length and the distances between all three sequence pairs.
+
+
 
 ## Collaborators
-_(In alphabetical order)_
 - Abigaela Boroica (UC Davis Computer Science, Class of 2021)
 - Lisa Malins (UC Davis Biotechnology, Class of 2020)
 

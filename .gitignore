@@ -1,2 +1,4 @@
 *.out
 run_popcorn
+popcorn_demo
+test_max_substrings
