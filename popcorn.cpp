@@ -79,7 +79,7 @@ vector<string> substring_generator(const string &str, int n, int substring_max_s
 
 unordered_map <string, double> read_blosum_build_kernel(double beta)
 {
-    ifstream file("BLOSUM62.txt");
+    ifstream file("data/BLOSUM62.txt");
     unordered_map <string, double> K1;
 
     string line = "";
