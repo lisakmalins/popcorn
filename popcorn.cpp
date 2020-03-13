@@ -151,11 +151,12 @@ double compute_K2(string &seq1, string &seq2, unordered_map <string, double> &K1
     return K2;
 }
 
-/* This function computer kernel K3.
-** parameters: two protein sequences, beta, kernel K1, max length for substring size
+/* This function computes kernel K3.
+** Parameters: two protein sequences, beta, kernel K1, max length for substring size
+** Substring max size = 0 (default argument) indicates no limit
 */
 
-double compute_K3(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size)
+double compute_K3(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size = 0)
 {
 
     double K3 = 0.0;
@@ -166,16 +167,16 @@ double compute_K3(string &seq1, string &seq2, unordered_map <string, double> &K1
 
     /* K3 for 1+ letter sequence combination */
 
-    /* Choose if you want to generate substrings of max length of 10 or max length of the protein sequence */
-    if(substring_max_size == 10)
-    {
-        sequence1 = substring_generator(seq1, seq1.length(), substring_max_size);
-        sequence2 = substring_generator(seq2, seq2.length(), substring_max_size);
-    }
-    else
+    /* Choose if you want to generate substrings of unlimited or limited length */
+    if(substring_max_size == 0)
     {
         sequence1 = substring_generator(seq1, seq1.length(), seq1.length());
         sequence2 = substring_generator(seq2, seq2.length(), seq2.length());
+    }
+    else
+    {
+        sequence1 = substring_generator(seq1, seq1.length(), substring_max_size);
+        sequence2 = substring_generator(seq2, seq2.length(), substring_max_size);
     }
 
 
@@ -200,7 +201,7 @@ double compute_K3(string &seq1, string &seq2, unordered_map <string, double> &K1
 ** parameters: two protein sequences, beta, kernel K1, max length for substring size
 ** returns: correlation K3
 */
-double correlation_kernel_K3(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size)
+double correlation_kernel_K3(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size = 0)
 {
 
     double correlation_K3 = 0.0;
@@ -219,7 +220,7 @@ double correlation_kernel_K3(string &seq1, string &seq2, unordered_map <string, 
 ** parameters: two protein sequences (1st sequence is smaller than or equals 2nd sequence), beta
 ** returns: the metric distance between 2 sequences of protein
 */
-double protein_distance(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size)
+double protein_distance(string &seq1, string &seq2, unordered_map <string, double> &K1, int substring_max_size = 0)
 {
     double distance = 0.0;
     double correlation_K3 = correlation_kernel_K3(seq1, seq2, K1, substring_max_size);
@@ -273,25 +274,25 @@ int main()
     cout << endl;
 
 
-    calculated_distance = protein_distance(s1, s3, local_K1,0);
+    calculated_distance = protein_distance(s1, s3, local_K1);
     cout << "final distance between sequence 1 and sequence 3 = " << calculated_distance << endl;
-    calculated_distance = protein_distance(s3, s1, local_K1,0);
+    calculated_distance = protein_distance(s3, s1, local_K1);
     cout << "final distance between sequence 3 and sequence 1 = " << calculated_distance << endl;
     cout << endl;
 
-    calculated_distance = protein_distance(s2, s3, local_K1,0);
+    calculated_distance = protein_distance(s2, s3, local_K1);
     cout << "final distance between sequence 2 and sequence 3 = " << calculated_distance << endl;
-    calculated_distance = protein_distance(s3, s2, local_K1,0);
+    calculated_distance = protein_distance(s3, s2, local_K1);
     cout << "final distance between sequence 3 and sequence 2 = " << calculated_distance << endl;
     cout << endl;
 
 
     /* Verify distance is 0 for identities */
-    calculated_distance = protein_distance(s1, s1, local_K1, 0);
+    calculated_distance = protein_distance(s1, s1, local_K1);
     cout << "final distance between sequence 1 and sequence 1 = " << calculated_distance << endl;
-    calculated_distance = protein_distance(s2, s2, local_K1,0);
+    calculated_distance = protein_distance(s2, s2, local_K1);
     cout << "final distance between sequence 2 and sequence 2 = " << calculated_distance << endl;
-    calculated_distance = protein_distance(s3, s3, local_K1,0);
+    calculated_distance = protein_distance(s3, s3, local_K1);
     cout << "final distance between sequence 3 and sequence 3 = " << calculated_distance << endl;
     cout << endl;
 
