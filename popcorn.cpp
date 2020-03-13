@@ -265,16 +265,38 @@ int main()
     unordered_map <string, double> local_K1 = read_blosum_build_kernel(beta);
 
     /* Results from calculating the distance using all possible substrings */
+    /* Verify results are the same regardless of order */
     calculated_distance= protein_distance(s1, s2, local_K1, 0);
     cout << "final distance between sequence 1 and sequence 2 = " << calculated_distance << endl;
-    calculated_distance = protein_distance(s3, s1, local_K1,0);
+    calculated_distance= protein_distance(s2, s1, local_K1, 0);
+    cout << "final distance between sequence 2 and sequence 1 = " << calculated_distance << endl;
+    cout << endl;
+
+
+    calculated_distance = protein_distance(s1, s3, local_K1,0);
     cout << "final distance between sequence 1 and sequence 3 = " << calculated_distance << endl;
-    calculated_distance = protein_distance(s3, s2, local_K1,0);
+    calculated_distance = protein_distance(s3, s1, local_K1,0);
+    cout << "final distance between sequence 3 and sequence 1 = " << calculated_distance << endl;
+    cout << endl;
+
+    calculated_distance = protein_distance(s2, s3, local_K1,0);
     cout << "final distance between sequence 2 and sequence 3 = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s3, s2, local_K1,0);
+    cout << "final distance between sequence 3 and sequence 2 = " << calculated_distance << endl;
+    cout << endl;
 
-    /*Results from calculating the distance using all substrings of max 10 letters */
 
-    calculated_distance= protein_distance(s1, s2, local_K1, substring_max_size);
+    /* Verify distance is 0 for identities */
+    calculated_distance = protein_distance(s1, s1, local_K1, 0);
+    cout << "final distance between sequence 1 and sequence 1 = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s2, s2, local_K1,0);
+    cout << "final distance between sequence 2 and sequence 2 = " << calculated_distance << endl;
+    calculated_distance = protein_distance(s3, s3, local_K1,0);
+    cout << "final distance between sequence 3 and sequence 3 = " << calculated_distance << endl;
+    cout << endl;
+
+    /* Results from calculating the distance using all substrings of max 10 letters */
+    calculated_distance = protein_distance(s1, s2, local_K1, substring_max_size);
     cout << "final distance between sequence 1 and sequence 2 (stopping at substrings of max 10 letters) = " << calculated_distance << endl;
     calculated_distance = protein_distance(s3, s1, local_K1,substring_max_size);
     cout << "final distance between sequence 1 and sequence 3 (stopping at substrings of max 10 letters) = " << calculated_distance << endl;
