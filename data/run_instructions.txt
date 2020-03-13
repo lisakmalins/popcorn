@@ -1,2 +1,0 @@
-If you want to run the program, type this in the data folder: ./main
-This should run correctly. I used beta = 0.01 to test the code and I got the same answers as in the handout. The only thing that I added was running the code with substrings of maximum 10 letters to show the difference between the 2.
