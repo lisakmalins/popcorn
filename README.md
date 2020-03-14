@@ -1,4 +1,5 @@
 # Popcorn
+![Popcorn logo](Images/popcorn_logo_transparent.png)
 A kernel-based, alignment-free distance calculator for amino acid sequences.
 
 Inspired by Stephen Smale and colleagues' 2012 paper, "Towards a mathematical foundation of immunology and amino acid chains."
