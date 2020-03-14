@@ -1,7 +1,8 @@
 # Popcorn
 
+<br />
 <div align="center">
-  <img src="Images/popcorn_logo_transparent.png" alt="Popcorn logo" width="400px" />
+  <img src="Images/popcorn_logo_transparent.png" alt="Popcorn logo" width="450px" />
 </div>
 <br /><br />
 
