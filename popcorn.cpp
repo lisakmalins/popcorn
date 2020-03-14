@@ -15,8 +15,7 @@ std::string parse_fasta(std::string filename) {
   input_file.open(filename);
 
   if (!input_file) {
-    cout << "ERROR: Unable to open file " << filename << endl;
-    throw runtime_error("generic msg\n");
+    throw runtime_error("ERROR: Unable to open file " + filename + "\n");
   }
 
 
@@ -48,8 +47,9 @@ std::string parse_fasta(std::string filename) {
 
 int main(int argc, char *argv[])
 {
+  std::string usage = "USAGE: \t./popcorn seq1.fa seq2.fa beta";
   if (argc != 3) {
-    cout << "ERROR: Popcorn requires 2 single fasta files." << endl;
+    cout << "ERROR: Popcorn requires 2 single fasta files.\n" << usage << endl;
     return 1;
   }
 
@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
   catch (const runtime_error& e)
   {
       cout << endl << e.what();
+      cout << usage << endl;
       return 1;
   }
 
