@@ -1,6 +1,6 @@
 # Popcorn
 
-<br />
+<br /><br />
 <div align="center">
   <img src="Images/popcorn_logo_transparent.png" alt="Popcorn logo" width="450px" />
 </div>
