@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   }
   catch (const runtime_error& e) {
       cout << endl << e.what();
-      cout << usage << endl;
+      cout << usage << endl << endl;
       return 1;
   }
 
