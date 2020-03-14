@@ -88,35 +88,52 @@ std::string parse_fasta(std::string filename) {
 
 int main(int argc, char *argv[])
 {
-  // Verify arguments
+  // Parse arguments
   std::string usage = "USAGE: \t./popcorn seq1.fa seq2.fa [ -b beta ] [ -k maximum k-mer length ]";
   double beta = 0.01;
-  unsigned int max_substring_length = 0;
+  int max_substring_length = 0;
 
-  if (argc < 3) {
+  try {
     // 2 fasta files are required arguments
-    cout << "ERROR: Popcorn requires 2 single fasta files.\n" << usage << endl;
-    return 1;
-  } else if (argc == 5 || argc == 7) {
-    // Support optional arguments -b {beta} -k {max substring length}
-    for (int i = 3; i < argc; i += 2) {
-      std::stringstream argument(argv[i+1]);
+    if (argc < 3) {
+      throw runtime_error("ERROR: Popcorn requires 2 single fasta files.\n");
+    }
 
-      if (std::string(argv[i]) == "-b") {
-        argument >> beta;
-      } else if (std::string(argv[i]) == "-k") {
-        argument >> max_substring_length;
+    // Support optional arguments -b {beta} -k {max substring length}
+    else if (argc == 5 || argc == 7) {
+
+      for (int i = 3; i < argc; i += 2) {
+        std::stringstream argument(argv[i+1]);
+
+        if (std::string(argv[i]) == "-b") {
+          argument >> beta;
+
+          if (argument.fail() || beta <= 0) {
+            throw runtime_error("ERROR: Beta must be a positive decimal number.\n");
+          }
+        }
+
+        else if (std::string(argv[i]) == "-k") {
+          argument >> max_substring_length;
+
+          if (argument.fail() || max_substring_length <= 0) {
+            throw runtime_error("ERROR: K must be a strictly positive integer.\n");
+          }
+        }
       }
     }
-  } else {
-    cout << "ERROR: Unexpected number of arguments.\n" << usage << endl;
-    return 1;
+
+    // User is drunk and should go home
+    else if (argc != 3) {
+      throw runtime_error("ERROR: Unexpected number of arguments.\n");
+    }
+  }
+  catch (const runtime_error& e) {
+      cout << endl << e.what();
+      cout << usage << endl;
+      return 1;
   }
 
-  cerr << "Using beta = " << beta << endl;
-  if (max_substring_length != 0) {
-    cerr << "Limiting algorithm to substrings of max length " << max_substring_length << endl;
-  }
 
   // Parse sequences
   std::string seq1;
@@ -131,6 +148,14 @@ int main(int argc, char *argv[])
       cout << usage << endl;
       return 1;
   }
+
+
+  // Echo extra options to user
+  cerr << "Using beta = " << beta << endl;
+  if (max_substring_length != 0) {
+    cerr << "Limiting algorithm to substrings of max length " << max_substring_length << endl;
+  }
+
 
   // Calculate kernels
   double calculated_distance;
