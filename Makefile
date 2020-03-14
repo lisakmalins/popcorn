@@ -1,4 +1,7 @@
-all: popcorn_demo test_max_substrings
+all: popcorn popcorn_demo test_max_substrings
+
+popcorn: popcorn.cpp kernels.h
+	g++ -std=c++11 popcorn.cpp -o popcorn
 
 popcorn_demo: popcorn_demo.cpp kernels.h
 	g++ -std=c++11 popcorn_demo.cpp -o popcorn_demo
