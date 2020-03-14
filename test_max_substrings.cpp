@@ -1,5 +1,5 @@
 #include <iostream>
-#include "popcorn.cpp"
+#include "kernels.h"
 
 int main()
 {
