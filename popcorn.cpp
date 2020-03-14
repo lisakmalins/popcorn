@@ -89,10 +89,33 @@ std::string parse_fasta(std::string filename) {
 int main(int argc, char *argv[])
 {
   // Verify arguments
-  std::string usage = "USAGE: \t./popcorn seq1.fa seq2.fa beta";
-  if (argc != 3) {
+  std::string usage = "USAGE: \t./popcorn seq1.fa seq2.fa [ -b beta ] [ -k maximum k-mer length ]";
+  double beta = 0.01;
+  unsigned int max_substring_length = 0;
+
+  if (argc < 3) {
+    // 2 fasta files are required arguments
     cout << "ERROR: Popcorn requires 2 single fasta files.\n" << usage << endl;
     return 1;
+  } else if (argc == 5 || argc == 7) {
+    // Support optional arguments -b {beta} -k {max substring length}
+    for (int i = 3; i < argc; i += 2) {
+      std::stringstream argument(argv[i+1]);
+
+      if (std::string(argv[i]) == "-b") {
+        argument >> beta;
+      } else if (std::string(argv[i]) == "-k") {
+        argument >> max_substring_length;
+      }
+    }
+  } else {
+    cout << "ERROR: Unexpected number of arguments.\n" << usage << endl;
+    return 1;
+  }
+
+  cerr << "Using beta = " << beta << endl;
+  if (max_substring_length != 0) {
+    cerr << "Limiting algorithm to substrings of max length " << max_substring_length << endl;
   }
 
   // Parse sequences
@@ -110,7 +133,6 @@ int main(int argc, char *argv[])
   }
 
   // Calculate kernels
-  double beta = 0.01;
   double calculated_distance;
   unordered_map <string, double> local_K1 = read_blosum_build_kernel(beta);
 
