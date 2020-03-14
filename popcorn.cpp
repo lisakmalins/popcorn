@@ -120,6 +120,15 @@ int main(int argc, char *argv[])
             throw runtime_error("ERROR: K must be a strictly positive integer.\n");
           }
         }
+
+        else {
+          if (std::string(argv[i])[0] == '-') {
+            throw runtime_error("ERROR: Unrecognized option " + std::string(argv[i]) + "\n");
+          }
+          else {
+            throw runtime_error("ERROR: Unsupported positional argument " + std::string(argv[i]) + "\n");
+          }
+        }
       }
     }
 
