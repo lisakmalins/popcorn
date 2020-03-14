@@ -88,12 +88,14 @@ std::string parse_fasta(std::string filename) {
 
 int main(int argc, char *argv[])
 {
+  // Verify arguments
   std::string usage = "USAGE: \t./popcorn seq1.fa seq2.fa beta";
   if (argc != 3) {
     cout << "ERROR: Popcorn requires 2 single fasta files.\n" << usage << endl;
     return 1;
   }
 
+  // Parse sequences
   std::string seq1;
   std::string seq2;
 
@@ -107,8 +109,13 @@ int main(int argc, char *argv[])
       return 1;
   }
 
-  cout << "Here is seq1" << endl << seq1 << endl;
-  cout << "Here is seq2" << endl << seq2 << endl;
+  // Calculate kernels
+  double beta = 0.01;
+  double calculated_distance;
+  unordered_map <string, double> local_K1 = read_blosum_build_kernel(beta);
+
+  calculated_distance = protein_distance(seq1, seq2, local_K1);
+  cout << calculated_distance << endl;
 
   return 0;
 }
