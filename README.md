@@ -65,6 +65,36 @@ This program shows that the distance is equal regardless of the order of the seq
 
 The output is tab-delimited; each line lists the maximum substring length and the distances between all three sequence pairs.
 
+### Error handling
+While parsing fasta files, Popcorn will print an error message and exit if it detects any of the following:
+
+- Input file missing fasta header
+- Input file has multiple fasta sequences
+- Unexpected whitespace
+- Numbers or symbols in sequence
+- Nonstandard amino acids in sequence
+
+Examples of invalid fasta files are included in `data/invalid_fasta/`.
+
+```
+# Testing error handling
+./popcorn data/invalid_fasta/missingheader.fa data/seq1.fa
+./popcorn data/invalid_fasta/multifasta.fa data/seq1.fa
+./popcorn data/invalid_fasta/whitespace.fa data/seq1.fa
+./popcorn data/invalid_fasta/nonstandard.fa data/seq1.fa
+./popcorn data/invalid_fasta/garbage.fa data/seq1.fa
+```
+
+On the other hand, Popcorn will handle fasta sequences with uppercase or lowercase amino acids without errors.
+
+The file `data/lowercase.fa` is a copy of `data/seq1.fa` with some letters lowercase to demonstrate.
+```
+# Same as distance between seq1 and seq3
+./popcorn data/lowercase.fa data/seq3.fa
+# Distance is 0 because protein is the same
+./popcorn data/lowercase.fa data/seq1.fa
+```
+
 
 ## Collaborators
 - Abigaela Boroica (UC Davis Computer Science, Class of 2021)
